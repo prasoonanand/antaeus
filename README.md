@@ -173,6 +173,8 @@ Happy hacking 😁!
         it can be changed to proper batch-size).
         Also, exposed an API for pending invoices to help the admin and dev ops team.
      
+        Getting stuck at a lot of small places as everything is new and have not worked.
+        
      **Worked for 2 hours.**        
         
 5. 12-Apr Coding
@@ -190,5 +192,8 @@ Happy hacking 😁!
         
         only `FAILURE` will be retried/ rescheduled, and all else should be check.
         This has been done so that we can easily identify problems for dev ops/ business purposes as well.
-      
-      **Worked for 1 hour 30 mins.**
+        
+        Ticket 0 is complete.
+        Added test cases.
+        
+      **Worked for 2 hour 30 mins.**

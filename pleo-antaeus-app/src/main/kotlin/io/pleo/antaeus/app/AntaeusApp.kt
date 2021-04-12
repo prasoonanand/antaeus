@@ -8,7 +8,8 @@
 package io.pleo.antaeus.app
 
 import getPaymentProvider
-import io.pleo.antaeus.core.scheduler.BillingScheduler
+import io.pleo.antaeus.core.config.CoreConfiguration
+import io.pleo.antaeus.core.scheduler.SchedulingService
 import io.pleo.antaeus.core.services.BillingService
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
@@ -52,9 +53,9 @@ fun main() {
             }
         }
     loadProperties()
-    val config = DBConfiguration()
+    val dbConfig = DBConfiguration()
     // Set up data access layer.
-    val dal = AntaeusDal(db = db, config = config)
+    val dal = AntaeusDal(db = db, config = dbConfig)
 
     // Insert example data in the database.
     setupInitialData(dal = dal)
@@ -69,7 +70,8 @@ fun main() {
     // This is _your_ billing service to be included where you see fit
     val billingService = BillingService(paymentProvider = paymentProvider, invoiceService = invoiceService)
 
-    val billingScheduler = BillingScheduler(billingService)
+    val coreConfig = CoreConfiguration()
+    val billingScheduler = SchedulingService(billingService, coreConfig)
 
     billingScheduler.scheduleMonthlyBilling()
 

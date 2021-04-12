@@ -41,25 +41,28 @@ class BillingService(
                 } catch (ex: CurrencyMismatchException) {
                     invoice.status = InvoiceStatus.CURRENCY_MISMATCH
                     currencyMismatch++
+                    logger.error { ex }
                 } catch (ex: CustomerNotFoundException) {
                     invoice.status = InvoiceStatus.CUSTOMER_NOT_FOUNT
                     customerNotFound++
+                    logger.error { ex }
                 } catch (ex: NetworkException) {
                     invoice.status = InvoiceStatus.FAILURE//TODO retry logic
                     networkIssue++
+                    logger.error { ex }
                 }catch (ex: Exception) {
                     invoice.status = InvoiceStatus.FAILURE//TODO retry logic
-                    networkIssue++
+                    logger.error { ex }
                 }
-                logger.info("Status " + invoice.status + " for customer " + invoice.customerId)
+                logger.info("Status " + invoice.status + " for customer " + invoice.customerId + " for invoice " + invoice.id)
             }
             invoiceService.updateBatchStatus(pendingInvoices)
         }
         logger.info("Finishing the schedule " + LocalDate.now() + " till " + System.currentTimeMillis())
-        return mapOf("Paid" to paid,
+        return mapOf("paid" to paid,
                 "customerRejected" to customerRejected,
-                "NetworkIssue" to networkIssue,
-                "CurrencyMisMatch" to currencyMismatch,
-                "CustomerNotFound" to customerNotFound)
+                "networkIssue" to networkIssue,
+                "currencyMisMatch" to currencyMismatch,
+                "customerNotFound" to customerNotFound)
     }
 }
