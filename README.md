@@ -168,6 +168,27 @@ Happy hacking 😁!
         
 4. 10-Apr Coding
         Starting with the 1st ticket 0, this is big so sub divided it into 4 parts DB, Service, scheduler and API.
-        Starting from the DB side 1st. (This part took 2 hours, )
+        Starting from the DB side 1st.
+        On db Side both fetch and update has been batched, and the batch size has been externalized in a config (so that 
+        it can be changed to proper batch-size).
+        Also, exposed an API for pending invoices to help the admin and dev ops team.
+     
+     **Worked for 2 hours.**        
         
+5. 12-Apr Coding
+        Starting on Service, scheduler and API. (2 hours)
+        Have used quartz cron task which will run at 12 Noon every 1st of the month to minimize time zone side effects.
+        Created a `BillingScheduler` in core, but it would be best to be as a separate service or may be lambda.
+        Exposed a custom API `PATCH /rest/v1/billing/pending` for running the billing manually if for some reason the 
+        cron fails, or the business wants to have a custom time at which the billing should be done.
+        Added new status for invoices:
+        `CURRENCY_MISMATCH` -> If there is a currency mismatch
+        `CUSTOMER_NOT_FOUNT` -> If customer not found
+        `CUSTOMER_REJECTED` -> If payment gets rejected by customer bank
+        `FAILURE` -> If there is a network issue, or some other exception (will be re-schedule again)
+        `ERROR` -> Retry failed.
         
+        only `FAILURE` will be retried/ rescheduled, and all else should be check.
+        This has been done so that we can easily identify problems for dev ops/ business purposes as well.
+      
+      **Worked for 1 hour 30 mins.**

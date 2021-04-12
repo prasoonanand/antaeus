@@ -1,9 +1,65 @@
 package io.pleo.antaeus.core.services
 
+import io.pleo.antaeus.core.exceptions.CurrencyMismatchException
+import io.pleo.antaeus.core.exceptions.CustomerNotFoundException
+import io.pleo.antaeus.core.exceptions.NetworkException
 import io.pleo.antaeus.core.external.PaymentProvider
+import io.pleo.antaeus.models.InvoiceStatus
+import mu.KotlinLogging
+import java.time.LocalDate
 
 class BillingService(
-    private val paymentProvider: PaymentProvider
+        private val paymentProvider: PaymentProvider,
+        private val invoiceService: InvoiceService
 ) {
-// TODO - Add code e.g. here
+    private val logger = KotlinLogging.logger("BillingService")
+
+    fun billPendingInvoices(): Map<String, Int> {
+        var page = 0;
+        logger.info("Running the schedule " + LocalDate.now() + " at " + System.currentTimeMillis())
+        var paid = 0;
+        var customerRejected = 0;
+        var currencyMismatch = 0;
+        var customerNotFound = 0;
+        var networkIssue = 0
+        while (true) {
+            logger.info("Fetching data for Page $page")
+            val pendingInvoices = invoiceService.fetchAllPendingInvoices(page++)
+            if (pendingInvoices.isEmpty()) {
+                break
+            }
+            for (invoice in pendingInvoices) {
+                try {
+                    val success = paymentProvider.charge(invoice)
+                    if (!success) {
+                        invoice.status = InvoiceStatus.CUSTOMER_REJECTED
+                        customerRejected++
+                    } else {
+                        invoice.status = InvoiceStatus.PAID
+                        paid++
+                    }
+                } catch (ex: CurrencyMismatchException) {
+                    invoice.status = InvoiceStatus.CURRENCY_MISMATCH
+                    currencyMismatch++
+                } catch (ex: CustomerNotFoundException) {
+                    invoice.status = InvoiceStatus.CUSTOMER_NOT_FOUNT
+                    customerNotFound++
+                } catch (ex: NetworkException) {
+                    invoice.status = InvoiceStatus.FAILURE//TODO retry logic
+                    networkIssue++
+                }catch (ex: Exception) {
+                    invoice.status = InvoiceStatus.FAILURE//TODO retry logic
+                    networkIssue++
+                }
+                logger.info("Status " + invoice.status + " for customer " + invoice.customerId)
+            }
+            invoiceService.updateBatchStatus(pendingInvoices)
+        }
+        logger.info("Finishing the schedule " + LocalDate.now() + " till " + System.currentTimeMillis())
+        return mapOf("Paid" to paid,
+                "customerRejected" to customerRejected,
+                "NetworkIssue" to networkIssue,
+                "CurrencyMisMatch" to currencyMismatch,
+                "CustomerNotFound" to customerNotFound)
+    }
 }
