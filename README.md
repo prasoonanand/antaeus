@@ -167,4 +167,7 @@ Happy hacking 😁!
      **Worked for 1 hours 30 min.**
         
 4. 10-Apr Coding
+        Starting with the 1st ticket 0, this is big so sub divided it into 4 parts DB, Service, scheduler and API.
+        Starting from the DB side 1st. (This part took 2 hours, )
+        
         
