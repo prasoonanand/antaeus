@@ -10,15 +10,16 @@ import io.pleo.antaeus.core.exceptions.EntityNotFoundException
 import io.pleo.antaeus.core.services.BillingService
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
+import io.pleo.antaeus.models.InvoiceStatus
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 private val thisFile: () -> Unit = {}
 
 class AntaeusRest(
-    private val invoiceService: InvoiceService,
-    private val customerService: CustomerService,
-    private val billingService: BillingService
+        private val invoiceService: InvoiceService,
+        private val customerService: CustomerService,
+        private val billingService: BillingService
 ) : Runnable {
 
     override fun run() {
@@ -27,19 +28,19 @@ class AntaeusRest(
 
     // Set up Javalin rest app
     private val app = Javalin
-        .create()
-        .apply {
-            // InvoiceNotFoundException: return 404 HTTP status code
-            exception(EntityNotFoundException::class.java) { _, ctx ->
-                ctx.status(404)
+            .create()
+            .apply {
+                // InvoiceNotFoundException: return 404 HTTP status code
+                exception(EntityNotFoundException::class.java) { _, ctx ->
+                    ctx.status(404)
+                }
+                // Unexpected exception: return HTTP 500
+                exception(Exception::class.java) { e, _ ->
+                    logger.error(e) { "Internal server error" }
+                }
+                // On 404: return message
+                error(404) { ctx -> ctx.json("not found") }
             }
-            // Unexpected exception: return HTTP 500
-            exception(Exception::class.java) { e, _ ->
-                logger.error(e) { "Internal server error" }
-            }
-            // On 404: return message
-            error(404) { ctx -> ctx.json("not found") }
-        }
 
     init {
         // Set up URL endpoints for the rest app
@@ -70,6 +71,12 @@ class AntaeusRest(
                         // URL: /rest/v1/invoices/pending/{:page}
                         get("pending/:page") {
                             it.json(invoiceService.fetchAllPendingInvoices(it.pathParam("page").toInt()))
+                        }
+
+                        // URL: /rest/v1/invoices/update/status/:id
+                        post("update/status/:id") {
+                            it.json(it.formParam("status")?.let { it1 -> InvoiceStatus.valueOf(it1) }
+                                    ?.let { it2 -> invoiceService.updateInvoiceStatus(it.pathParam("id").toInt(), it2) }!!)
                         }
                     }
 

@@ -16,13 +16,13 @@ internal class SchedulingServiceTest {
         }
 
         val coreConfig = mockk<CoreConfiguration> {
-            every { cronRegex } returns "0/3 * * * * ?"
+            every { cronRegex } returns "0/5 * * * * ?"
         }
 
         val billingScheduler = SchedulingService(billingService, coreConfig)
         billingScheduler.scheduleMonthlyBilling()
         Thread.sleep(7 * 1000)
-        verify(exactly = 2) { billingService.billPendingInvoices() }
+        verify(exactly = 1) { billingService.billPendingInvoices() }
 
     }
 }

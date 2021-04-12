@@ -9,7 +9,7 @@ package io.pleo.antaeus.app
 
 import getPaymentProvider
 import io.pleo.antaeus.core.config.CoreConfiguration
-import io.pleo.antaeus.core.scheduler.SchedulingService
+import io.pleo.antaeus.core.services.SchedulingService
 import io.pleo.antaeus.core.services.BillingService
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService

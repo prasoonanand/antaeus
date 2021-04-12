@@ -141,7 +141,7 @@ Happy hacking 😁!
         Epic: 
             As a user, I want to be billed every start of the month, if not already paid just once for that month.
         Stories: 
-            0. As pleo, Billing of customers should be done every start of the month, if not already paid just once for that month.
+            0. As pleo, Billing of customers should be done every start of the month, if not already paid just once for that month. (DONE)
             1. As pleo, Billing should be able to send multiple payments calls async based on paymentsProvider bandwidth for different invoices.
             2. As pleo, If the monthly job does not runs raise a P1. (out of scope)
             3. As Pleo, I should be able to retry for failed payments for 5 times after 10 mins interval. These reties should only happen for valid failed reasons.
@@ -150,7 +150,7 @@ Happy hacking 😁!
             4. As pleo, I should be able to raise manual billings, if for some user the payment failed and manual intervention is required.
             5. As pleo, I should be able to charge customers from the start of subscription to start of next month. (Out of scope)
             6. As pleo, I should be able to change invoice state manually with reasons.(Out of scope)
-            7. As pleo, I should be able to run the scheduling job manually as well.
+            7. As pleo, I should be able to run the PENDING payment job manually as well. (DONE)
         
         Not considing the points which were out of scope in problem statement.
         
@@ -178,7 +178,8 @@ Happy hacking 😁!
      **Worked for 2 hours.**        
         
 5. 12-Apr Coding
-        Starting on Service, scheduler and API. (2 hours)
+      
+        Starting on Service, scheduler and API.
         Have used quartz cron task which will run at 12 Noon every 1st of the month to minimize time zone side effects.
         Created a `BillingScheduler` in core, but it would be best to be as a separate service or may be lambda.
         Exposed a custom API `PATCH /rest/v1/billing/pending` for running the billing manually if for some reason the 
@@ -193,7 +194,12 @@ Happy hacking 😁!
         only `FAILURE` will be retried/ rescheduled, and all else should be check.
         This has been done so that we can easily identify problems for dev ops/ business purposes as well.
         
-        Ticket 0 is complete.
+        Ticket 0 and 7 is complete.
         Added test cases.
         
-      **Worked for 2 hour 30 mins.**
+        Changed the test case on ScheduleingService as it was flaky.
+        
+        Done with ticket 4. Not handling java.lang.IllegalArgumentException: No enum constant io.pleo.antaeus.models.InvoiceStatus
+        in `/rest/v1/invoices/update/status/:id` call.
+
+      **Worked for 3 hour.**
