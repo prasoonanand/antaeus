@@ -7,18 +7,19 @@
 
 package io.pleo.antaeus.data
 
+import io.pleo.antaeus.data.config.DBConfiguration
 import io.pleo.antaeus.models.Currency
 import io.pleo.antaeus.models.Customer
 import io.pleo.antaeus.models.Invoice
 import io.pleo.antaeus.models.InvoiceStatus
 import io.pleo.antaeus.models.Money
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.dao.EntityID
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.statements.BatchUpdateStatement
 import org.jetbrains.exposed.sql.transactions.transaction
 
-class AntaeusDal(private val db: Database) {
+class AntaeusDal(private val db: Database, private val config: DBConfiguration) {
     fun fetchInvoice(id: Int): Invoice? {
         // transaction(db) runs the internal query as a new database transaction.
         return transaction(db) {
@@ -38,6 +39,31 @@ class AntaeusDal(private val db: Database) {
         }
     }
 
+    fun fetchAllInvoicesOnStatus(status: InvoiceStatus, page: Int = 0): List<Invoice> {
+        require(page >= 0) { "Page size should be greater than or equal to 0" }
+        val batchSize = config.dbBatchSize;
+        val offset = page * batchSize;
+
+        return transaction(db) {
+            InvoiceTable
+                    .select(InvoiceTable.status.eq(status.name))
+                    .limit(batchSize, offset)
+                    .map { it.toInvoice() }
+        }
+    }
+
+    fun batchUpdateInvoice(invoices: List<Invoice>) {
+        transaction(db) {
+            BatchUpdateStatement(InvoiceTable).apply {
+                invoices.forEach {
+                    addBatch(EntityID(it.id, InvoiceTable))
+                    this[InvoiceTable.status] = it.status.name
+                }
+                execute(this@transaction)
+            }
+        }
+    }
+
     fun createInvoice(amount: Money, customer: Customer, status: InvoiceStatus = InvoiceStatus.PENDING): Invoice? {
         val id = transaction(db) {
             // Insert the invoice and returns its new id.
@@ -50,7 +76,7 @@ class AntaeusDal(private val db: Database) {
                 } get InvoiceTable.id
         }
 
-        return fetchInvoice(id)
+        return fetchInvoice(id.value)
     }
 
     fun fetchCustomer(id: Int): Customer? {
@@ -79,5 +105,14 @@ class AntaeusDal(private val db: Database) {
         }
 
         return fetchCustomer(id)
+    }
+
+    fun updateInvoiceStatus(invoiceId: Int, status: InvoiceStatus): Invoice? {
+        val id = transaction(db) {
+            InvoiceTable.update({InvoiceTable.id eq invoiceId}){
+                it[this.status] = status.name
+            }
+        }
+        return if(id == 0) null else fetchInvoice(invoiceId)
     }
 }

@@ -13,7 +13,7 @@ import io.pleo.antaeus.models.Money
 import org.jetbrains.exposed.sql.ResultRow
 
 fun ResultRow.toInvoice(): Invoice = Invoice(
-    id = this[InvoiceTable.id],
+    id = this[InvoiceTable.id].value,
     amount = Money(
         value = this[InvoiceTable.value],
         currency = Currency.valueOf(this[InvoiceTable.currency])
