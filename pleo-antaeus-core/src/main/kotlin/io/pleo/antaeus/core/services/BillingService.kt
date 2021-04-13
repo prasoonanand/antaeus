@@ -14,7 +14,7 @@ class BillingService(
 ) {
     private val logger = KotlinLogging.logger("BillingService")
 
-    fun billPendingInvoices(): Map<String, Int> {
+    fun billPendingInvoices(status: InvoiceStatus): Map<String, Int> {
         var page = 0;
         logger.info("Running the schedule " + LocalDate.now() + " at " + System.currentTimeMillis())
         var paid = 0;
@@ -24,7 +24,7 @@ class BillingService(
         var networkIssue = 0
         while (true) {
             logger.info("Fetching data for Page $page")
-            val pendingInvoices = invoiceService.fetchAllPendingInvoices(page++)
+            val pendingInvoices = invoiceService.fetchAllInvoicesOnStatus(status, page++)
             if (pendingInvoices.isEmpty()) {
                 break
             }

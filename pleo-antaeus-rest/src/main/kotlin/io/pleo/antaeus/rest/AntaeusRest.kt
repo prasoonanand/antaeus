@@ -68,14 +68,14 @@ class AntaeusRest(
                             it.json(invoiceService.fetch(it.pathParam("id").toInt()))
                         }
 
-                        // URL: /rest/v1/invoices/pending/{:page}
-                        get("pending/:page") {
-                            it.json(invoiceService.fetchAllPendingInvoices(it.pathParam("page").toInt()))
+                        // URL: /rest/v1/invoices/status/{:status}/{:page}
+                        get("status/:status/:page") {
+                            it.json(invoiceService.fetchAllInvoicesOnStatus(InvoiceStatus.valueOf(it.pathParam("status").toUpperCase()), it.pathParam("page").toInt()))
                         }
 
                         // URL: /rest/v1/invoices/update/status/:id
                         post("update/status/:id") {
-                            it.json(it.formParam("status")?.let { it1 -> InvoiceStatus.valueOf(it1) }
+                            it.json(it.formParam("status")?.let { it1 -> InvoiceStatus.valueOf(it1.toUpperCase()) }
                                     ?.let { it2 -> invoiceService.updateInvoiceStatus(it.pathParam("id").toInt(), it2) }!!)
                         }
                     }
@@ -93,9 +93,9 @@ class AntaeusRest(
                     }
 
                     path("billing") {
-                        // URL: /rest/v1/billing/pending
-                        patch("pending") {
-                            it.json(billingService.billPendingInvoices())
+                        // URL: /rest/v1/billing/{:status}
+                        patch(":status") {
+                            it.json(billingService.billPendingInvoices(InvoiceStatus.valueOf(it.pathParam("status").toUpperCase())))
                         }
                     }
                 }

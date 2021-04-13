@@ -39,14 +39,14 @@ class AntaeusDal(private val db: Database, private val config: DBConfiguration) 
         }
     }
 
-    fun fetchPendingInvoices(page: Int = 0): List<Invoice> {
+    fun fetchAllInvoicesOnStatus(status: InvoiceStatus, page: Int = 0): List<Invoice> {
         require(page >= 0) { "Page size should be greater than or equal to 0" }
         val batchSize = config.dbBatchSize;
         val offset = page * batchSize;
 
         return transaction(db) {
             InvoiceTable
-                    .select(InvoiceTable.status.eq(InvoiceStatus.PENDING.name))
+                    .select(InvoiceTable.status.eq(status.name))
                     .limit(batchSize, offset)
                     .map { it.toInvoice() }
         }

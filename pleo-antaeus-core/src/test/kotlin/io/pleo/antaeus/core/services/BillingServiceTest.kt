@@ -22,14 +22,14 @@ internal class BillingServiceTest {
     @Test
     fun billPendingInvoicesNoInvoices() {
         val invoiceService = mockk<InvoiceService> {
-            every { fetchAllPendingInvoices(0) } returns Collections.emptyList()
+            every { fetchAllInvoicesOnStatus(InvoiceStatus.PENDING, 0) } returns Collections.emptyList()
         }
         val paymentProvider = mockk<PaymentProvider>() {
             every { charge(any()) } returns true
         }
 
         val billingService = BillingService(paymentProvider, invoiceService)
-        val processed = billingService.billPendingInvoices()
+        val processed = billingService.billPendingInvoices(InvoiceStatus.PENDING)
         assertResult(0, 0, 0, 0, 0, processed)
         verify (exactly = 0) { invoiceService.updateBatchStatus(any()) }
     }
@@ -38,8 +38,8 @@ internal class BillingServiceTest {
     fun billPendingInvoicesAllPaid() {
         val invoices = generateInvoices(5)
         val invoiceService = mockk<InvoiceService> {
-            every { fetchAllPendingInvoices(0) } returns invoices
-            every { fetchAllPendingInvoices(1) } returns Collections.emptyList()
+            every { fetchAllInvoicesOnStatus(InvoiceStatus.PENDING, 0) } returns invoices
+            every { fetchAllInvoicesOnStatus(InvoiceStatus.PENDING, 1) } returns Collections.emptyList()
             every { updateBatchStatus(any()) } returns Unit
         }
         val paymentProvider = mockk<PaymentProvider>() {
@@ -47,7 +47,7 @@ internal class BillingServiceTest {
         }
 
         val billingService = BillingService(paymentProvider, invoiceService)
-        val processed = billingService.billPendingInvoices()
+        val processed = billingService.billPendingInvoices(InvoiceStatus.PENDING)
         assertResult(5, 0, 0, 0, 0, processed)
         verify (exactly = 1) { invoiceService.updateBatchStatus(any()) }
     }
@@ -56,8 +56,8 @@ internal class BillingServiceTest {
     fun billPendingInvoicesAllRejected() {
         val invoices = generateInvoices(5)
         val invoiceService = mockk<InvoiceService> {
-            every { fetchAllPendingInvoices(0) } returns invoices
-            every { fetchAllPendingInvoices(1) } returns Collections.emptyList()
+            every { fetchAllInvoicesOnStatus(InvoiceStatus.PENDING, 0) } returns invoices
+            every { fetchAllInvoicesOnStatus(InvoiceStatus.PENDING, 1) } returns Collections.emptyList()
             every { updateBatchStatus(any()) } returns Unit
         }
         val paymentProvider = mockk<PaymentProvider>() {
@@ -65,7 +65,7 @@ internal class BillingServiceTest {
         }
 
         val billingService = BillingService(paymentProvider, invoiceService)
-        val processed = billingService.billPendingInvoices()
+        val processed = billingService.billPendingInvoices(InvoiceStatus.PENDING)
         assertResult(0, 5, 0, 0, 0, processed)
         verify (exactly = 1) { invoiceService.updateBatchStatus(any()) }
     }
@@ -74,8 +74,8 @@ internal class BillingServiceTest {
     fun billPendingInvoicesOneOfAll() {
         val invoices = generateInvoices(5)
         val invoiceService = mockk<InvoiceService> {
-            every { fetchAllPendingInvoices(0) } returns invoices
-            every { fetchAllPendingInvoices(1) } returns Collections.emptyList()
+            every { fetchAllInvoicesOnStatus(InvoiceStatus.PENDING, 0) } returns invoices
+            every { fetchAllInvoicesOnStatus(InvoiceStatus.PENDING, 1) } returns Collections.emptyList()
             every { updateBatchStatus(any()) } returns Unit
         }
         val paymentProvider = mockk<PaymentProvider>() {
@@ -87,7 +87,7 @@ internal class BillingServiceTest {
         }
 
         val billingService = BillingService(paymentProvider, invoiceService)
-        val processed = billingService.billPendingInvoices()
+        val processed = billingService.billPendingInvoices(InvoiceStatus.PENDING )
         assertResult(1, 1, 1, 1, 1, processed)
         verify (exactly = 1) { invoiceService.updateBatchStatus(any()) }
     }
@@ -100,9 +100,9 @@ internal class BillingServiceTest {
     fun billPendingInvoicesOneOfAllAndUpdate2Times() {
         val invoices = generateInvoices(5)
         val invoiceService = mockk<InvoiceService> {
-            every { fetchAllPendingInvoices(0) } returns invoices
-            every { fetchAllPendingInvoices(1) } returns invoices
-            every { fetchAllPendingInvoices(2) } returns Collections.emptyList()
+            every { fetchAllInvoicesOnStatus(InvoiceStatus.PENDING, 0) } returns invoices
+            every { fetchAllInvoicesOnStatus(InvoiceStatus.PENDING, 1) } returns invoices
+            every { fetchAllInvoicesOnStatus(InvoiceStatus.PENDING, 2) } returns Collections.emptyList()
             every { updateBatchStatus(any()) } returns Unit
         }
         val paymentProvider = mockk<PaymentProvider>() {
@@ -114,7 +114,7 @@ internal class BillingServiceTest {
         }
 
         val billingService = BillingService(paymentProvider, invoiceService)
-        val processed = billingService.billPendingInvoices()
+        val processed = billingService.billPendingInvoices(InvoiceStatus.PENDING )
         assertResult(2, 2, 2, 2, 2, processed)
         verify (exactly = 2) { invoiceService.updateBatchStatus(any()) }
     }

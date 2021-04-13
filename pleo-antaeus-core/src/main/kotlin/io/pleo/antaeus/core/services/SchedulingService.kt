@@ -1,6 +1,7 @@
 package io.pleo.antaeus.core.services
 
 import io.pleo.antaeus.core.config.CoreConfiguration
+import io.pleo.antaeus.models.InvoiceStatus
 import mu.KotlinLogging
 import org.quartz.*
 import org.quartz.impl.StdSchedulerFactory
@@ -19,7 +20,7 @@ class SchedulingService(
             val jobBuilder = JobBuilder
                     .newJob(BillingScheduler::class.java)
                     .withIdentity("BillingServiceJob")
-                    .setJobData(JobDataMap(mapOf("billingService" to billingService)))
+                    .setJobData(JobDataMap(mapOf("billingService" to billingService, "invoiceStatus" to InvoiceStatus.PENDING)))
                     .build()
             val trigger = TriggerBuilder.newTrigger()
                     .withIdentity("SchedulingServiceTrigger")
@@ -37,7 +38,8 @@ class BillingScheduler : Job {
 
     override fun execute(context: JobExecutionContext?) {
         val billingService = context?.jobDetail?.jobDataMap?.get("billingService") as BillingService
-        billingService.billPendingInvoices()
+        val invoiceStatus = context?.jobDetail?.jobDataMap?.get("invoiceStatus") as InvoiceStatus
+        billingService.billPendingInvoices(invoiceStatus)
     }
 
 }

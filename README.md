@@ -146,11 +146,11 @@ Happy hacking 😁!
             2. As pleo, If the monthly job does not runs raise a P1. (out of scope)
             3. As Pleo, I should be able to retry for failed payments for 5 times after 10 mins interval. These reties should only happen for valid failed reasons.
             4. As pleo, I should be able to raise an alert as a P3. If all retries have not been able to pass the payments for valid failed reasons.(out of scope)
-            5. As pleo, i should be able to reaise an alert as a P2. If the failed reason from payments is `CurrencyMismatchException` or `CustomerNotFoundException`.(out of scope)
-            4. As pleo, I should be able to raise manual billings, if for some user the payment failed and manual intervention is required.
-            5. As pleo, I should be able to charge customers from the start of subscription to start of next month. (Out of scope)
-            6. As pleo, I should be able to change invoice state manually with reasons.(Out of scope)
-            7. As pleo, I should be able to run the PENDING payment job manually as well. (DONE)
+            5. As pleo, I should be able to reaise an alert as a P2. If the failed reason from payments is `CurrencyMismatchException` or `CustomerNotFoundException`.(out of scope)
+            6. As pleo, I should be able to raise manual billings, if for some user the payment failed and manual intervention is required. (DONE)
+            7. As pleo, I should be able to charge customers from the start of subscription to start of next month. (Out of scope)
+            8. As pleo, I should be able to change invoice state manually with reasons.(Out of scope)
+            9. As pleo, I should be able to run the PENDING payment job manually as well. (DONE)
         
         Not considing the points which were out of scope in problem statement.
         
@@ -164,7 +164,7 @@ Happy hacking 😁!
         
             Coding Standards at least with SOLID principles.
         
-     **Worked for 1 hours 30 min.**
+     **Worked for 1 hour 30 min.**
         
 4. 10-Apr Coding
         Starting with the 1st ticket 0, this is big so sub divided it into 4 parts DB, Service, scheduler and API.
@@ -194,12 +194,28 @@ Happy hacking 😁!
         only `FAILURE` will be retried/ rescheduled, and all else should be check.
         This has been done so that we can easily identify problems for dev ops/ business purposes as well.
         
-        Ticket 0 and 7 is complete.
+        Ticket 0 and 9 is complete.
         Added test cases.
         
         Changed the test case on ScheduleingService as it was flaky.
         
-        Done with ticket 4. Not handling java.lang.IllegalArgumentException: No enum constant io.pleo.antaeus.models.InvoiceStatus
+        Done with ticket 6. Not handling java.lang.IllegalArgumentException: No enum constant io.pleo.antaeus.models.InvoiceStatus
         in `/rest/v1/invoices/update/status/:id` call.
 
-      **Worked for 3 hour.**
+      **Worked for 3 hours.**
+
+6. 13-Apr Coding
+            Code refactor - changed API to `/rest/v1/invoices/status/:{status}/{:page}` -> to get invoices based on status
+                                            `PATCH /rest/v1/billing/{:status}` -> to bill invoices based on status
+            Also the scheduling task will now run based on status type.
+            SchedulingServiceTest is really flaky gave 30 mins for this and leaving it for now.
+            
+            Starting on 3
+            
+      **Worked for 1 hour.**
+
+
+**Tech Assumptions:**
+
+Scenario if multiple cron job run concurrently has not been handled if we take that then we have to take a lock on DB end or
+make the page variable thread safe being global to the services.
