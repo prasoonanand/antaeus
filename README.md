@@ -142,7 +142,7 @@ Happy hacking 😁!
             As a user, I want to be billed every start of the month, if not already paid just once for that month.
         Stories: 
             0. As pleo, Billing of customers should be done every start of the month, if not already paid just once for that month. (DONE)
-            1. As pleo, Billing should be able to send multiple payments calls async based on paymentsProvider bandwidth for different invoices.
+            1. As pleo, Billing should be able to send multiple payments calls async based on paymentsProvider bandwidth for different invoices.(DONE)
             2. As pleo, If the monthly job does not runs raise a P1. (out of scope)
             3. As Pleo, I should be able to retry for failed payments for 5 times after 10 mins interval. These reties should only happen for valid failed reasons.
             4. As pleo, I should be able to raise an alert as a P3. If all retries have not been able to pass the payments for valid failed reasons.(out of scope)
