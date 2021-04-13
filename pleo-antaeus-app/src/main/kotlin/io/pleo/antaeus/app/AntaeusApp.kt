@@ -9,7 +9,8 @@ package io.pleo.antaeus.app
 
 import getPaymentProvider
 import io.pleo.antaeus.core.config.CoreConfiguration
-import io.pleo.antaeus.core.services.SchedulingService
+import io.pleo.antaeus.core.scheduler.BillingRetryListener
+import io.pleo.antaeus.core.scheduler.SchedulingService
 import io.pleo.antaeus.core.services.BillingService
 import io.pleo.antaeus.core.services.CustomerService
 import io.pleo.antaeus.core.services.InvoiceService
@@ -71,7 +72,8 @@ fun main() {
     val billingService = BillingService(paymentProvider = paymentProvider, invoiceService = invoiceService)
 
     val coreConfig = CoreConfiguration()
-    val billingScheduler = SchedulingService(billingService, coreConfig)
+    val billingRetryListener = BillingRetryListener(billingService, coreConfig)
+    val billingScheduler = SchedulingService(billingRetryListener, billingService, coreConfig)
 
     billingScheduler.scheduleMonthlyBilling()
 

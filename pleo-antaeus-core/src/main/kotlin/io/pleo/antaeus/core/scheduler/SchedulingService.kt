@@ -1,13 +1,16 @@
-package io.pleo.antaeus.core.services
+package io.pleo.antaeus.core.scheduler
 
 import io.pleo.antaeus.core.config.CoreConfiguration
+import io.pleo.antaeus.core.services.BillingService
 import io.pleo.antaeus.models.InvoiceStatus
 import mu.KotlinLogging
 import org.quartz.*
 import org.quartz.impl.StdSchedulerFactory
+import org.quartz.impl.matchers.KeyMatcher
 
 
 class SchedulingService(
+        private val billingRetryListener: BillingRetryListener,
         private val billingService: BillingService,
         private val coreConfig: CoreConfiguration
 ) {
@@ -27,19 +30,11 @@ class SchedulingService(
                     .withSchedule(CronScheduleBuilder.cronSchedule(coreConfig.cronRegex))
                     .build()
             scheduler.scheduleJob(jobBuilder, trigger)
+            scheduler.listenerManager
+                    .addJobListener(billingRetryListener, KeyMatcher.keyEquals(JobKey.jobKey("BillingServiceJob")))
             scheduler.start()
         } catch (ex: Exception) {
             logger.error { ex }
         }
     }
-}
-
-class BillingScheduler : Job {
-
-    override fun execute(context: JobExecutionContext?) {
-        val billingService = context?.jobDetail?.jobDataMap?.get("billingService") as BillingService
-        val invoiceStatus = context?.jobDetail?.jobDataMap?.get("invoiceStatus") as InvoiceStatus
-        billingService.billPendingInvoices(invoiceStatus)
-    }
-
 }

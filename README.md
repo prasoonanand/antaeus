@@ -211,8 +211,10 @@ Happy hacking 😁!
             SchedulingServiceTest is really flaky gave 30 mins for this and leaving it for now.
             
             Starting on 3
+            Have changed the method billingPendingInvoice to billing invoice and to identify if it's the last run for retry.
+            It looks ugly but will try to refactor later if have time.
             
-      **Worked for 1 hour.**
+      **Worked for 3 hours.**
 
 
 **Tech Assumptions:**

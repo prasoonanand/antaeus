@@ -14,7 +14,7 @@ class BillingService(
 ) {
     private val logger = KotlinLogging.logger("BillingService")
 
-    fun billPendingInvoices(status: InvoiceStatus): Map<String, Int> {
+    fun billInvoices(status: InvoiceStatus, isFinal: Boolean): Map<String, Int> {
         var page = 0;
         logger.info("Running the schedule " + LocalDate.now() + " at " + System.currentTimeMillis())
         var paid = 0;
@@ -47,11 +47,11 @@ class BillingService(
                     customerNotFound++
                     logger.error { ex }
                 } catch (ex: NetworkException) {
-                    invoice.status = InvoiceStatus.FAILURE//TODO retry logic
+                    invoice.status = if(isFinal) InvoiceStatus.ERROR else InvoiceStatus.FAILURE
                     networkIssue++
                     logger.error { ex }
                 }catch (ex: Exception) {
-                    invoice.status = InvoiceStatus.FAILURE//TODO retry logic
+                    invoice.status = if(isFinal) InvoiceStatus.ERROR else InvoiceStatus.FAILURE
                     logger.error { ex }
                 }
                 logger.info("Status " + invoice.status + " for customer " + invoice.customerId + " for invoice " + invoice.id)

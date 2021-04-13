@@ -29,9 +29,9 @@ internal class BillingServiceTest {
         }
 
         val billingService = BillingService(paymentProvider, invoiceService)
-        val processed = billingService.billPendingInvoices(InvoiceStatus.PENDING)
+        val processed = billingService.billInvoices(InvoiceStatus.PENDING, false)
         assertResult(0, 0, 0, 0, 0, processed)
-        verify (exactly = 0) { invoiceService.updateBatchStatus(any()) }
+        verify(exactly = 0) { invoiceService.updateBatchStatus(any()) }
     }
 
     @Test
@@ -47,9 +47,9 @@ internal class BillingServiceTest {
         }
 
         val billingService = BillingService(paymentProvider, invoiceService)
-        val processed = billingService.billPendingInvoices(InvoiceStatus.PENDING)
+        val processed = billingService.billInvoices(InvoiceStatus.PENDING, false)
         assertResult(5, 0, 0, 0, 0, processed)
-        verify (exactly = 1) { invoiceService.updateBatchStatus(any()) }
+        verify(exactly = 1) { invoiceService.updateBatchStatus(any()) }
     }
 
     @Test
@@ -65,9 +65,9 @@ internal class BillingServiceTest {
         }
 
         val billingService = BillingService(paymentProvider, invoiceService)
-        val processed = billingService.billPendingInvoices(InvoiceStatus.PENDING)
+        val processed = billingService.billInvoices(InvoiceStatus.PENDING, false)
         assertResult(0, 5, 0, 0, 0, processed)
-        verify (exactly = 1) { invoiceService.updateBatchStatus(any()) }
+        verify(exactly = 1) { invoiceService.updateBatchStatus(any()) }
     }
 
     @Test
@@ -87,9 +87,9 @@ internal class BillingServiceTest {
         }
 
         val billingService = BillingService(paymentProvider, invoiceService)
-        val processed = billingService.billPendingInvoices(InvoiceStatus.PENDING )
+        val processed = billingService.billInvoices(InvoiceStatus.PENDING, false)
         assertResult(1, 1, 1, 1, 1, processed)
-        verify (exactly = 1) { invoiceService.updateBatchStatus(any()) }
+        verify(exactly = 1) { invoiceService.updateBatchStatus(any()) }
     }
 
     /**
@@ -114,15 +114,15 @@ internal class BillingServiceTest {
         }
 
         val billingService = BillingService(paymentProvider, invoiceService)
-        val processed = billingService.billPendingInvoices(InvoiceStatus.PENDING )
+        val processed = billingService.billInvoices(InvoiceStatus.PENDING, false)
         assertResult(2, 2, 2, 2, 2, processed)
-        verify (exactly = 2) { invoiceService.updateBatchStatus(any()) }
+        verify(exactly = 2) { invoiceService.updateBatchStatus(any()) }
     }
 
     private fun generateInvoices(i: Int): List<Invoice> {
-        val  invoices = ArrayList<Invoice>(i)
+        val invoices = ArrayList<Invoice>(i)
         IntStream.range(0, i).forEach {
-            invoices.add(Invoice(it,it, Money(BigDecimal.ONE, Currency.EUR), InvoiceStatus.PENDING))
+            invoices.add(Invoice(it, it, Money(BigDecimal.ONE, Currency.EUR), InvoiceStatus.PENDING))
         }
         return invoices
     }

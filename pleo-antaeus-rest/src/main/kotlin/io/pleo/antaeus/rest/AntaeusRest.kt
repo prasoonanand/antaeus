@@ -95,7 +95,7 @@ class AntaeusRest(
                     path("billing") {
                         // URL: /rest/v1/billing/{:status}
                         patch(":status") {
-                            it.json(billingService.billPendingInvoices(InvoiceStatus.valueOf(it.pathParam("status").toUpperCase())))
+                            it.json(billingService.billInvoices(InvoiceStatus.valueOf(it.pathParam("status").toUpperCase())))
                         }
                     }
                 }
