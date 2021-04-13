@@ -24,11 +24,12 @@ class BillingService(
         var networkIssue = 0
         while (true) {
             logger.info("Fetching data for Page $page")
-            val pendingInvoices = invoiceService.fetchAllInvoicesOnStatus(status, page++)
-            if (pendingInvoices.isEmpty()) {
+            val invoices = invoiceService.fetchAllInvoicesOnStatus(status, page++)
+            if (invoices.isEmpty()) {
                 break
             }
-            for (invoice in pendingInvoices) {
+            invoices.parallelStream().peek {
+                val invoice = it
                 try {
                     val success = paymentProvider.charge(invoice)
                     if (!success) {
@@ -56,7 +57,7 @@ class BillingService(
                 }
                 logger.info("Status " + invoice.status + " for customer " + invoice.customerId + " for invoice " + invoice.id)
             }
-            invoiceService.updateBatchStatus(pendingInvoices)
+            invoiceService.updateBatchStatus(invoices)
         }
         logger.info("Finishing the schedule " + LocalDate.now() + " till " + System.currentTimeMillis())
         return mapOf("paid" to paid,

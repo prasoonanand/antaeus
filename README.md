@@ -214,7 +214,12 @@ Happy hacking 😁!
             Have changed the method billingPendingInvoice to billing invoice and to identify if it's the last run for retry.
             It looks ugly but will try to refactor later if have time.
             
-      **Worked for 3 hours.**
+            Starting on 1
+            Have changed the for loop to a parallel stream.
+            
+            Leaving the ugly BillingService as is.
+            
+      **Worked for 3 hours 15 min.**
 
 
 **Tech Assumptions:**
