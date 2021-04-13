@@ -7,9 +7,9 @@ import org.quartz.JobExecutionContext
 
 class BillingScheduler: Job {
 
-    override fun execute(context: JobExecutionContext?) {
-        val billingService = context?.jobDetail?.jobDataMap?.get("billingService") as BillingService
-        val invoiceStatus = context?.jobDetail?.jobDataMap?.get("invoiceStatus") as InvoiceStatus
+    override fun execute(context: JobExecutionContext) {
+        val billingService = context.jobDetail?.jobDataMap?.get("billingService") as BillingService
+        val invoiceStatus = context.jobDetail?.jobDataMap?.get("invoiceStatus") as InvoiceStatus
         billingService.billInvoices(invoiceStatus, false)
     }
 

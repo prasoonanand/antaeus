@@ -219,6 +219,8 @@ Happy hacking 😁!
             
             Leaving the ugly BillingService as is.
             
+            Fixing test cases.
+            
       **Worked for 3 hours 15 min.**
 
 
@@ -226,3 +228,5 @@ Happy hacking 😁!
 
 Scenario if multiple cron job run concurrently has not been handled if we take that then we have to take a lock on DB end or
 make the page variable thread safe being global to the services.
+
+Integration tests are missing but should be written.
